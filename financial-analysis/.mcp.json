@@ -1,48 +1,45 @@
 {
   "mcpServers": {
-    "daloopa": {
+    "sec-edgar": {
       "type": "http",
-      "url": "https://mcp.daloopa.com/server/mcp"
+      "url": "https://your-host/sec-edgar-mcp"
     },
-    "morningstar": {
+    "yahoo-finance": {
       "type": "http",
-      "url": "https://mcp.morningstar.com/mcp"
+      "url": "https://your-host/yahoo-finance-mcp"
     },
-    "sp-global": {
+    "openbb": {
       "type": "http",
-      "url": "https://kfinance.kensho.com/integrations/mcp"
+      "url": "https://your-host/openbb-mcp"
     },
-    "factset": {
+    "fmp": {
       "type": "http",
-      "url": "https://mcp.factset.com/mcp"
+      "url": "https://your-host/fmp-mcp"
     },
-    "moodys": {
+    "frb-fred": {
       "type": "http",
-      "url": "https://api.moodys.com/genai-ready-data/m1/mcp"
+      "url": "https://your-host/fred-mcp"
     },
-    "mtnewswire": {
+    "brave-search": {
       "type": "http",
-      "url": "https://vast-mcp.blueskyapi.com/mtnewswires"
+      "url": "https://api.search.brave.com/mcp"
     },
-    "aiera": {
+    "rss-news": {
       "type": "http",
-      "url": "https://mcp-pub.aiera.com"
+      "url": "https://your-host/rss-mcp"
     },
-    "lseg": {
+    "crunchbase-free": {
       "type": "http",
-      "url": "https://api.analytics.lseg.com/lfa/mcp"
+      "url": "https://your-host/crunchbase-mcp"
     },
-    "pitchbook": {
+    "google-drive": {
       "type": "http",
-      "url": "https://premium.mcp.pitchbook.com/mcp"
+      "url": "https://your-host/gdrive-mcp"
     },
-    "chronograph": {
-      "type": "http",
-      "url": "https://ai.chronograph.pe/mcp"
-    },
-    "egnyte": {
-      "type": "http",
-      "url": "https://mcp-server.egnyte.com/mcp"
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/your/workspace"]
     }
   }
 }
