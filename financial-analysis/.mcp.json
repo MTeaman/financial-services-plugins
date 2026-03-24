@@ -1,45 +1,109 @@
 {
+  "_readme": [
+    "Free MCP stack replacing the Anthropic paid connectors.",
+    "Providers marked 'API_KEY_REQUIRED' need a key stored as an N8N Header Auth credential.",
+    "Providers marked 'NO_AUTH' are fully public (SEC EDGAR, Yahoo Finance).",
+    "OpenBB must be self-hosted (no public hosted endpoint available).",
+    "Replace YOUR_ORACLE_HOST with your Oracle Cloud instance hostname or IP."
+  ],
   "mcpServers": {
+
     "sec-edgar": {
+      "_replaces": "daloopa + aiera (fundamentals and earnings filings)",
+      "_auth": "NO_AUTH - public US government API, no key required",
+      "_n8n": "No credential needed. Use HTTP Request node directly.",
       "type": "http",
-      "url": "https://your-host/sec-edgar-mcp"
+      "url": "https://YOUR_ORACLE_HOST/sec-edgar-mcp/mcp"
     },
+
     "yahoo-finance": {
+      "_replaces": "morningstar + lseg (market data, quotes, market cap)",
+      "_auth": "NO_AUTH - public data, no key required",
+      "_n8n": "No credential needed. Use HTTP Request node directly.",
       "type": "http",
-      "url": "https://your-host/yahoo-finance-mcp"
+      "url": "https://YOUR_ORACLE_HOST/yahoo-finance-mcp/mcp"
     },
-    "openbb": {
+
+    "alpha-vantage": {
+      "_replaces": "factset (historical price series, OHLCV, EPS)",
+      "_auth": "API_KEY_REQUIRED - free key at alphavantage.co (25 req/day free tier)",
+      "_n8n": "Create Header Auth credential: Header=apikey, Value=YOUR_ALPHA_VANTAGE_KEY",
       "type": "http",
-      "url": "https://your-host/openbb-mcp"
+      "url": "https://www.alphavantage.co/mcp",
+      "headers": {
+        "apikey": "${ALPHA_VANTAGE_API_KEY}"
+      }
     },
+
     "fmp": {
+      "_replaces": "sp-global (income statement, balance sheet, cash flow, ratios)",
+      "_auth": "API_KEY_REQUIRED - free key at financialmodelingprep.com (250 req/day free tier)",
+      "_n8n": "Create Header Auth credential: Header=apikey, Value=YOUR_FMP_KEY",
       "type": "http",
-      "url": "https://your-host/fmp-mcp"
+      "url": "https://financialmodelingprep.com/api/mcp",
+      "headers": {
+        "apikey": "${FMP_API_KEY}"
+      }
     },
+
     "frb-fred": {
+      "_replaces": "moodys + lseg (yield curves, credit spreads, FX rates, macro)",
+      "_auth": "API_KEY_REQUIRED - free key at fred.stlouisfed.org (unlimited free tier)",
+      "_n8n": "Create Header Auth credential: Header=api_key, Value=YOUR_FRED_KEY",
       "type": "http",
-      "url": "https://your-host/fred-mcp"
+      "url": "https://api.stlouisfed.org/mcp",
+      "headers": {
+        "api_key": "${FRED_API_KEY}"
+      }
     },
+
     "brave-search": {
+      "_replaces": "mtnewswire + aiera (news, press releases, earnings announcements)",
+      "_auth": "API_KEY_REQUIRED - free key at brave.com/search/api (2000 req/month free tier)",
+      "_n8n": "Create Header Auth credential: Header=X-Subscription-Token, Value=YOUR_BRAVE_KEY",
       "type": "http",
-      "url": "https://api.search.brave.com/mcp"
+      "url": "https://api.search.brave.com/mcp",
+      "headers": {
+        "X-Subscription-Token": "${BRAVE_SEARCH_API_KEY}"
+      }
     },
-    "rss-news": {
-      "type": "http",
-      "url": "https://your-host/rss-mcp"
-    },
+
     "crunchbase-free": {
+      "_replaces": "pitchbook (VC deals, funding rounds, investors, board data)",
+      "_auth": "API_KEY_REQUIRED - free key at crunchbase.com (200 records/day free tier)",
+      "_n8n": "Create Header Auth credential: Header=X-cb-user-key, Value=YOUR_CRUNCHBASE_KEY",
       "type": "http",
-      "url": "https://your-host/crunchbase-mcp"
+      "url": "https://api.crunchbase.com/api/v4/mcp",
+      "headers": {
+        "X-cb-user-key": "${CRUNCHBASE_API_KEY}"
+      }
     },
+
+    "openbb": {
+      "_replaces": "morningstar (ratios, screeners, ETF holdings, portfolio analytics)",
+      "_auth": "NO_AUTH - self-hosted open source instance on Oracle Cloud",
+      "_n8n": "No credential needed. Points to your self-hosted OpenBB instance.",
+      "_note": "OpenBB has no public hosted MCP endpoint. Must be self-hosted. See: github.com/OpenBB-finance/openbb-mcp",
+      "type": "http",
+      "url": "https://YOUR_ORACLE_HOST/openbb-mcp/mcp"
+    },
+
     "google-drive": {
+      "_replaces": "egnyte + chronograph (document management, portfolio tracking spreadsheets)",
+      "_auth": "OAuth2 - use Google OAuth2 credential in N8N",
+      "_n8n": "Create Google OAuth2 credential in N8N. Scopes: drive.readonly or drive.file",
       "type": "http",
-      "url": "https://your-host/gdrive-mcp"
+      "url": "https://YOUR_ORACLE_HOST/gdrive-mcp/mcp"
     },
+
     "filesystem": {
+      "_replaces": "egnyte (local file and document access)",
+      "_auth": "NO_AUTH - local stdio process, no network call",
+      "_n8n": "Not applicable. Runs as a local stdio process via Claude Code or Claude Desktop.",
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/your/workspace"]
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace/financial-data"]
     }
+
   }
 }
