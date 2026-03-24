@@ -1,105 +1,146 @@
 {
   "_readme": [
-    "Free MCP stack replacing the Anthropic paid connectors.",
-    "Providers marked 'API_KEY_REQUIRED' need a key stored as an N8N Header Auth credential.",
-    "Providers marked 'NO_AUTH' are fully public (SEC EDGAR, Yahoo Finance).",
-    "OpenBB must be self-hosted (no public hosted endpoint available).",
-    "Replace YOUR_ORACLE_HOST with your Oracle Cloud instance hostname or IP."
+    "Free MCP stack — genuinely zero-cost, no subscriptions required.",
+    "SEC EDGAR: public US government API, called directly via N8N HTTP Request node.",
+    "Yahoo Finance: public query endpoints, called directly via N8N HTTP Request node.",
+    "OpenBB: open-source, installed on Oracle Cloud instance via pip, called via N8N Execute Command node.",
+    "Alpha Vantage + FMP + FRED: free API keys (register once, no credit card).",
+    "Crunchbase and Brave Search removed — their free tiers are not usable for production.",
+    "No containers required. All connections run through N8N nodes directly."
   ],
   "mcpServers": {
 
     "sec-edgar": {
-      "_replaces": "daloopa + aiera (fundamentals and earnings filings)",
-      "_auth": "NO_AUTH - public US government API, no key required",
-      "_n8n": "No credential needed. Use HTTP Request node directly.",
+      "_replaces": "daloopa + aiera (fundamentals, filings, earnings press releases)",
+      "_auth": "NO_AUTH — public US government API, no key, no registration",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Base URL for company facts: https://data.sec.gov/api/xbrl/companyfacts/CIK{{padded_cik}}.json",
+        "Base URL for submissions: https://data.sec.gov/submissions/CIK{{padded_cik}}.json",
+        "Required header (SEC policy): User-Agent = 'YourAppName contact@strategy-lab.com'",
+        "Add header inline on the node — no N8N credential object needed",
+        "CIK lookup: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&company=IONQ&type=10-K"
+      ],
+      "_example_urls": {
+        "IonQ financials": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001821806.json",
+        "Rigetti financials": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001821769.json"
+      },
       "type": "http",
-      "url": "https://YOUR_ORACLE_HOST/sec-edgar-mcp/mcp"
+      "url": "https://data.sec.gov"
     },
 
     "yahoo-finance": {
-      "_replaces": "morningstar + lseg (market data, quotes, market cap)",
-      "_auth": "NO_AUTH - public data, no key required",
-      "_n8n": "No credential needed. Use HTTP Request node directly.",
+      "_replaces": "morningstar + lseg (real-time quotes, market cap, price history)",
+      "_auth": "NO_AUTH — public Yahoo Finance query endpoints, no key required",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Quote URL: https://query1.finance.yahoo.com/v8/finance/chart/{{TICKER}}",
+        "Fundamentals URL: https://query2.finance.yahoo.com/v10/finance/quoteSummary/{{TICKER}}?modules=financialData,incomeStatementHistory,balanceSheetHistory",
+        "Required header (to avoid blocks): User-Agent = 'Mozilla/5.0'",
+        "Add header inline on the node — no N8N credential object needed",
+        "No rate limit documented; use responsibly (max ~2000 req/day per IP)"
+      ],
+      "_example_urls": {
+        "IonQ quote": "https://query1.finance.yahoo.com/v8/finance/chart/IONQ",
+        "IonQ fundamentals": "https://query2.finance.yahoo.com/v10/finance/quoteSummary/IONQ?modules=financialData,incomeStatementHistory"
+      },
       "type": "http",
-      "url": "https://YOUR_ORACLE_HOST/yahoo-finance-mcp/mcp"
-    },
-
-    "alpha-vantage": {
-      "_replaces": "factset (historical price series, OHLCV, EPS)",
-      "_auth": "API_KEY_REQUIRED - free key at alphavantage.co (25 req/day free tier)",
-      "_n8n": "Create Header Auth credential: Header=apikey, Value=YOUR_ALPHA_VANTAGE_KEY",
-      "type": "http",
-      "url": "https://www.alphavantage.co/mcp",
-      "headers": {
-        "apikey": "${ALPHA_VANTAGE_API_KEY}"
-      }
-    },
-
-    "fmp": {
-      "_replaces": "sp-global (income statement, balance sheet, cash flow, ratios)",
-      "_auth": "API_KEY_REQUIRED - free key at financialmodelingprep.com (250 req/day free tier)",
-      "_n8n": "Create Header Auth credential: Header=apikey, Value=YOUR_FMP_KEY",
-      "type": "http",
-      "url": "https://financialmodelingprep.com/api/mcp",
-      "headers": {
-        "apikey": "${FMP_API_KEY}"
-      }
-    },
-
-    "frb-fred": {
-      "_replaces": "moodys + lseg (yield curves, credit spreads, FX rates, macro)",
-      "_auth": "API_KEY_REQUIRED - free key at fred.stlouisfed.org (unlimited free tier)",
-      "_n8n": "Create Header Auth credential: Header=api_key, Value=YOUR_FRED_KEY",
-      "type": "http",
-      "url": "https://api.stlouisfed.org/mcp",
-      "headers": {
-        "api_key": "${FRED_API_KEY}"
-      }
-    },
-
-    "brave-search": {
-      "_replaces": "mtnewswire + aiera (news, press releases, earnings announcements)",
-      "_auth": "API_KEY_REQUIRED - free key at brave.com/search/api (2000 req/month free tier)",
-      "_n8n": "Create Header Auth credential: Header=X-Subscription-Token, Value=YOUR_BRAVE_KEY",
-      "type": "http",
-      "url": "https://api.search.brave.com/mcp",
-      "headers": {
-        "X-Subscription-Token": "${BRAVE_SEARCH_API_KEY}"
-      }
-    },
-
-    "crunchbase-free": {
-      "_replaces": "pitchbook (VC deals, funding rounds, investors, board data)",
-      "_auth": "API_KEY_REQUIRED - free key at crunchbase.com (200 records/day free tier)",
-      "_n8n": "Create Header Auth credential: Header=X-cb-user-key, Value=YOUR_CRUNCHBASE_KEY",
-      "type": "http",
-      "url": "https://api.crunchbase.com/api/v4/mcp",
-      "headers": {
-        "X-cb-user-key": "${CRUNCHBASE_API_KEY}"
-      }
+      "url": "https://query1.finance.yahoo.com"
     },
 
     "openbb": {
       "_replaces": "morningstar (ratios, screeners, ETF holdings, portfolio analytics)",
-      "_auth": "NO_AUTH - self-hosted open source instance on Oracle Cloud",
-      "_n8n": "No credential needed. Points to your self-hosted OpenBB instance.",
-      "_note": "OpenBB has no public hosted MCP endpoint. Must be self-hosted. See: github.com/OpenBB-finance/openbb-mcp",
+      "_auth": "NO_AUTH — open-source Python SDK, self-installed on Oracle Cloud",
+      "_n8n_setup": [
+        "Install on Oracle Cloud: pip install openbb",
+        "Node type: Execute Command (N8N self-hosted only)",
+        "Command: python3 -c \"from openbb import obb; import json; print(json.dumps(obb.equity.price.quote('IONQ').to_dict()))\"",
+        "Or: create a small Flask wrapper on Oracle Cloud and call it via HTTP Request node",
+        "Flask wrapper runs on: http://localhost:5000/quote?ticker=IONQ",
+        "No N8N credential needed for local Execute Command",
+        "For HTTP wrapper: no auth header needed if running on same Oracle instance"
+      ],
+      "_installation": "pip install openbb",
+      "_docs": "https://github.com/OpenBB-finance/openbb-mcp",
       "type": "http",
-      "url": "https://YOUR_ORACLE_HOST/openbb-mcp/mcp"
+      "url": "http://localhost:5000"
+    },
+
+    "alpha-vantage": {
+      "_replaces": "factset (historical OHLCV price series, EPS, adjusted closes)",
+      "_auth": "FREE API KEY — register at https://alphavantage.co (no credit card, 25 req/day)",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "URL: https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={{TICKER}}&apikey={{KEY}}",
+        "N8N Credential: create 'Query Auth' credential — Parameter=apikey, Value=YOUR_KEY",
+        "Or: store key in N8N environment variable AV_API_KEY and reference as {{$env.AV_API_KEY}}"
+      ],
+      "type": "http",
+      "url": "https://www.alphavantage.co/query"
+    },
+
+    "fmp": {
+      "_replaces": "sp-global (income statement, balance sheet, cash flow, key ratios)",
+      "_auth": "FREE API KEY — register at https://financialmodelingprep.com (no credit card, 250 req/day)",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Income statement: https://financialmodelingprep.com/api/v3/income-statement/IONQ?apikey={{KEY}}",
+        "Balance sheet: https://financialmodelingprep.com/api/v3/balance-sheet-statement/IONQ?apikey={{KEY}}",
+        "N8N Credential: create 'Query Auth' credential — Parameter=apikey, Value=YOUR_KEY",
+        "Or: store key in N8N environment variable FMP_API_KEY and reference as {{$env.FMP_API_KEY}}"
+      ],
+      "type": "http",
+      "url": "https://financialmodelingprep.com/api/v3"
+    },
+
+    "frb-fred": {
+      "_replaces": "moodys + lseg (yield curves, credit spreads, FX rates, macro indicators)",
+      "_auth": "FREE API KEY — register at https://fred.stlouisfed.org/docs/api/api_key.html (no credit card, unlimited)",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Series data: https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key={{KEY}}&file_type=json",
+        "Series search: https://api.stlouisfed.org/fred/series/search?search_text=credit+spread&api_key={{KEY}}&file_type=json",
+        "N8N Credential: create 'Query Auth' credential — Parameter=api_key, Value=YOUR_KEY",
+        "Or: store key in N8N environment variable FRED_API_KEY"
+      ],
+      "_useful_series": {
+        "10Y Treasury": "DGS10",
+        "2Y Treasury": "DGS2",
+        "IG Credit Spread": "BAMLC0A0CM",
+        "HY Credit Spread": "BAMLH0A0HYM2",
+        "EUR/USD FX": "DEXUSEU"
+      },
+      "type": "http",
+      "url": "https://api.stlouisfed.org/fred"
     },
 
     "google-drive": {
-      "_replaces": "egnyte + chronograph (document management, portfolio tracking spreadsheets)",
-      "_auth": "OAuth2 - use Google OAuth2 credential in N8N",
-      "_n8n": "Create Google OAuth2 credential in N8N. Scopes: drive.readonly or drive.file",
+      "_replaces": "egnyte + chronograph (document management, portfolio tracking sheets)",
+      "_auth": "OAuth2 — use existing Google account, no cost",
+      "_n8n_setup": [
+        "Node type: Google Drive (built-in N8N node)",
+        "N8N Credential: Google OAuth2 — already available in N8N credentials panel",
+        "Scopes needed: https://www.googleapis.com/auth/drive.readonly (read) or drive.file (read/write)",
+        "No API key needed — OAuth2 flow handles auth via your Google account",
+        "Use Google Sheets node for portfolio tracking workbooks"
+      ],
       "type": "http",
-      "url": "https://YOUR_ORACLE_HOST/gdrive-mcp/mcp"
+      "url": "https://www.googleapis.com/drive/v3"
     },
 
     "filesystem": {
-      "_replaces": "egnyte (local file and document access)",
-      "_auth": "NO_AUTH - local stdio process, no network call",
-      "_n8n": "Not applicable. Runs as a local stdio process via Claude Code or Claude Desktop.",
+      "_replaces": "egnyte (local file access for templates, output files)",
+      "_auth": "NO_AUTH — local stdio process",
+      "_n8n_setup": [
+        "Not called via N8N — this runs as a local stdio MCP process via Claude Code or Claude Desktop",
+        "No credential needed",
+        "Configure in Claude Desktop: add to mcpServers in claude_desktop_config.json"
+      ],
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace/financial-data"]
