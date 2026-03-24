@@ -144,6 +144,87 @@
       "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/workspace/financial-data"]
+    },
+
+    "ecb-sdw": {
+      "_replaces": "market data providers (macroeconomic indicators, interest rates)",
+      "_auth": "NO_AUTH — European Central Bank Statistical Data Warehouse, public API",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Base URL: https://sdw-wsrest.ecb.europa.eu/service/data/{flowRef}/{key}",
+        "Example: Interest rates → https://sdw-wsrest.ecb.europa.eu/service/data/FM/M.U2.EUR.RT.MM.EURIBOR1MD_.HSTA",
+        "No authentication required",
+        "Returns XML by default, add ?format=jsondata for JSON",
+        "Documentation: https://sdw-wsrest.ecb.europa.eu/help/"
+      ],
+      "type": "http",
+      "url": "https://sdw-wsrest.ecb.europa.eu"
+    },
+
+    "eurostat": {
+      "_replaces": "economic data providers (EU-wide statistics, GDP, inflation)",
+      "_auth": "NO_AUTH — Eurostat public REST API, no registration needed",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Base URL: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/{dataset}",
+        "Example GDP: https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nama_10_gdp",
+        "Format parameter: ?format=JSON",
+        "Filter by time/geo: &time=2023&geo=EU27_2020",
+        "Documentation: https://ec.europa.eu/eurostat/web/main/data/web-services"
+      ],
+      "type": "http",
+      "url": "https://ec.europa.eu/eurostat/api"
+    },
+
+    "esma-esef": {
+      "_replaces": "EU company filings (alternative to SEC EDGAR for European issuers)",
+      "_auth": "NO_AUTH — ESMA public register, no key required",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "FIRDS register: https://registers.esma.europa.eu/solr/esma_registers_firds_files/select",
+        "ESEF filings: Search via https://filings.esma.europa.eu/",
+        "Query parameters for filtering by date, issuer LEI",
+        "Note: ESEF data requires parsing iXBRL format",
+        "Documentation: https://registers.esma.europa.eu/"
+      ],
+      "type": "http",
+      "url": "https://registers.esma.europa.eu"
+    },
+
+    "boe-api": {
+      "_replaces": "UK macroeconomic data (Bank of England statistical database)",
+      "_auth": "NO_AUTH — Bank of England public API, no registration",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Base URL: https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolumns.asp",
+        "Alternative: https://www.bankofengland.co.uk/statistics/research-datasets",
+        "Query by series code (e.g., IUDBEDR for base rate)",
+        "Returns CSV format by default",
+        "Documentation: https://www.bankofengland.co.uk/statistics/about"
+      ],
+      "type": "http",
+      "url": "https://www.bankofengland.co.uk"
+    },
+
+    "ons-api": {
+      "_replaces": "UK economic statistics (Office for National Statistics)",
+      "_auth": "NO_AUTH — ONS public API, no authentication needed",
+      "_n8n_setup": [
+        "Node type: HTTP Request",
+        "Method: GET",
+        "Base URL: https://api.ons.gov.uk/",
+        "Datasets endpoint: https://api.ons.gov.uk/datasets",
+        "Time series: https://api.ons.gov.uk/timeseries/{id}/dataset/{dataset}/data",
+        "Example GDP: https://api.ons.gov.uk/timeseries/ABMI/dataset/UKEA/data",
+        "Returns JSON format",
+        "Documentation: https://developer.ons.gov.uk/"
+      ],
+      "type": "http",
+      "url": "https://api.ons.gov.uk"
     }
 
   }
